@@ -26,6 +26,24 @@
 
 .App-link {
   color: #61dafb;
+  text-decoration: none;
+}
+
+.Content {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  padding-top: 10vh;
+}
+
+.text-link {
+  color: inherit;
+  text-decoration: inherit;
 }
 
 @keyframes App-logo-spin {
