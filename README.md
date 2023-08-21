@@ -6,9 +6,6 @@
 ### Deployment 👋 
 [![Live demo](https://img.shields.io/badge/live_demo-firebase-orange)][live]
 
-
-
-
 ### Preview
 ![preview][preview1-url]
 
@@ -16,19 +13,14 @@
 
 
 ### Powerade with 
-#### nerdstep/
-[react-coordinate-input]
-#### antonfisher/
-[react-simple-timefield]
+#### nerdstep/[react-coordinate-input]
+#### antonfisher/[react-simple-timefield]
 
 using Geolocation API to access data from the [Geolocation API](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API).
 
-
-
-
 ## Contributions
 
-Contributions are welcome. File bug reports, create pull requests, feel free to reach out at tothab@gmail.com.
+Contributions are welcome. File bug reports, create pull requests, feel free to reach out at pajlotapps@gmail.com.
 
 ## License
 
