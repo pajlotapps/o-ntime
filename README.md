@@ -30,7 +30,6 @@ Contributions are welcome. File bug reports, create pull requests, feel free to 
 
 [react-coordinate-input]: https://github.com/nerdstep/react-coordinate-input
 [react-simple-timefield]: https://github.com/antonfisher/react-simple-timefield
-
-[aviation-math] : https://github.com/bjoernffm/aviation-math
+[aviation-math]: https://github.com/bjoernffm/aviation-math
 
 [live]: https://o-ntime.web.app
