@@ -15,8 +15,9 @@
 ### Powerade with 
 #### nerdstep/[react-coordinate-input]
 #### antonfisher/[react-simple-timefield]
-
-using Geolocation API to access data from the [Geolocation API](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API).
+#### bjoernffm/[aviation-math]
+#### Geolocation API
+feed with data from [geolocation](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API)
 
 ## Contributions
 
@@ -29,5 +30,7 @@ Contributions are welcome. File bug reports, create pull requests, feel free to 
 
 [react-coordinate-input]: https://github.com/nerdstep/react-coordinate-input
 [react-simple-timefield]: https://github.com/antonfisher/react-simple-timefield
+
+[aviation-math] : https://github.com/bjoernffm/aviation-math
 
 [live]: https://o-ntime.web.app
