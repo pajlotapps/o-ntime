@@ -2,6 +2,7 @@
 
 ## Technology stack
 ![REACT](https://img.shields.io/badge/-ReactJs-61DAFB?logo=react&logoColor=white&style=for-the-badge) 
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=JavaScript&logoColor=white)
 
 ### Deployment 👋 
 [![Live demo](https://img.shields.io/badge/live_demo-firebase-orange)][live]
