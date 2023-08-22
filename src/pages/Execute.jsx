@@ -29,6 +29,12 @@ function Execute() {
     return initialValue || "0";
   });
 
+  const [distance, setDistance] = useState(() => {
+    const saved = localStorage.getItem("distance");
+    const initialValue = JSON.parse(saved);
+    return initialValue || "0";
+  });
+
   const [targetPosition, setTargetPosition] = useState([]);
 
   useEffect(() => {
@@ -36,17 +42,23 @@ function Execute() {
     if (targetPosition) {
       setTargetPosition(targetPosition);
     }
+    console.log(targetPosition.lat)
 
     const dist = getDistance(
       new Position(currPosition.lat, currPosition.long),
       new Position(targetPosition.lat, targetPosition.long)
+      // new Position(55.755826, 37.6173)
     );
 
-    setTargetPosition((prev) => ({
-      ...prev,
-      distance: dist,
-    }));
-  }, []);
+    setDistance(dist);
+    localStorage.setItem("distance", JSON.stringify(dist));
+
+
+    // setTargetPosition((prev) => ({
+    //   ...prev,
+    //   distance: dist,
+    // }));
+  }, [currPosition]);
 
   useEffect(() => {
     setCurrPosition({
@@ -55,72 +67,76 @@ function Execute() {
       speed: speed,
       heading: heading,
     });
-  }, []);
+  }, [latitude, longitude, speed, accuracy, heading]);
 
   return (
     <div className="Content">
+      {/* <Typography> */}
       {targetPosition.lat && targetPosition.long ? (
         <code>
-          <Typography>
-            <p>
-            <small><strong>Current location:</strong></small>
-            </p>
+      <Typography variant="h6" paragraph>
+            <strong>Current location:</strong>
+            </Typography >
             {latitude ? (
                 <small>
+                        <Typography variant="subtitle1" paragraph>
+
                   {toDMS(latitude, longitude).lati}{" "}
                   {toDMS(longitude, longitude).long}
+                </Typography>
+
+                  {speed ? (
+                <Typography variant="subtitle2">
+                        GS {convert(speed).from("m/s").to("knot").toFixed()} {"kt "}
+                        </Typography>
+                        ) : <span>GS: 0kt </span>}
+{heading ? (
+                <span>
+                  {" "}
+                  HDG {heading.toFixed()}°<br />{" "}
+                </span>
+              ) : <span>HDG: TBN<br/></span>}
+              
                 </small>
             ) : null}
-            <p>
-              <small>
+            <h5>
                 <strong>Target location:</strong>
-              </small>
-            </p>
+            </h5>
               <small>
                 {formatToDMS(targetPosition.lat)} {targetPosition.latCardinal}{" "}
                 {formatToDMS(targetPosition.long)} {targetPosition.longCardinal}
               </small>
           <p>
-            Distance: {targetPosition.distance.toFixed(1)} NM <br />
+          Distance: {distance.toFixed(1)} NM <br />
             <strong> TOT: {tot} [UTC]</strong><br />
             ETA: 12:54:21 [UTC]<br />
             ETE: 15 min 21 sek 
             {speed ? (
-               
-                <span>{(targetPosition.distance/speed).toFixed(1)} h</span>
+                <span>{(distance/speed).toFixed(1)} h</span>
             // ): <span> GS: 0</span>}
             ): null}
 
           </p>
-          </Typography>
         </code>
       ) : null}
+
+
       {latitude ? (
-        <p>
+              <Typography variant="caption" display="block" gutterBottom>
           <code>
             <small>
-              {speed ? (
-                <span>
-                  GS {convert(speed).from("m/s").to("knot").toFixed()} kt{" "}
-                </span>
-              ) : <span>GS: 0kt </span>}
-              {heading ? (
-                <span>
-                  {" "}
-                  HDG {heading.toFixed()}°<br />{" "}
-                </span>
-              ) : <span>HDG: 0°<br/></span>}
-              timestamp: {timestamp}
+              
+              timestamp: {Intl.DateTimeFormat('pl-PL', {hour: '2-digit', minute: '2-digit', second: '2-digit'}).format(timestamp)} LMT
               <br />
               accuracy: {accuracy && `${Math.round(accuracy)} meters`}
               <br />
               {error ? <span>error: {error}</span> : null}
             </small>
           </code>
-        </p>
+              </Typography>
       ) : (
-        <p>standby, looking for fix</p>
-      )}
+        <span>standby, looking for fix</span>
+        )}
     </div>
   );
 }

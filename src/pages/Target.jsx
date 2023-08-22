@@ -32,7 +32,7 @@ function Target() {
         latCardinal: "N",
         long: 0,
         longCardinal: "E",
-        distance: 0,
+        // distance: 0,
       }
     );
   });
@@ -186,6 +186,9 @@ function Target() {
                 label="TOT"
                 variant="outlined"
                 placeholder="HH:MM:SS"
+                onFocus={event => {
+                  event.target.select();
+                }}
               />
             }
             colon=":"
@@ -195,30 +198,22 @@ function Target() {
         <Grid item xs={14}>
           {targetPosition.lat && targetPosition.long ? (
             <code>
-              <Typography>
-                <p>
-                  <small>
-                    <strong>Target location:</strong>
-                  </small>
+              <Typography gutterBottom>
+                <small><strong>Target location:</strong></small>
                   <br />
                   {formatToDMS(targetPosition.lat)} {targetPosition.latCardinal}{" "}
                   {formatToDMS(targetPosition.long)}{" "}
                   {targetPosition.longCardinal}
-                </p>
               </Typography>
               {tot !== "" ? (
-                <Typography>
-                  <small>
-                    Desire<strong> TOT</strong> [UTC]:
-                  </small>
+                <Typography gutterBottom>
+                  <small>Desire<strong> TOT</strong> [UTC]:</small>
                   <br />
                   {tot}
                 </Typography>
               ) : null}
-              <p>
                 {/* Distance: {targetPosition.distance.toFixed(1)} NM <br />
                 ETT: 15 min 21 sek */}
-              </p>
               <Link className="text-link" to="/execute">
                 <Button variant="outlined">Execute </Button>
               </Link>
