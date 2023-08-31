@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  font-family: sans-serif;
 }
 
 .App-logo {
@@ -31,14 +32,16 @@
 
 .Content {
   background-color: #282c34;
-  min-height: 100vh;
+  
+  min-height: 90vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  /* justify-content: center; */
+  font-size: calc(7px + 2vmin);
   color: white;
-  padding-top: 10vh;
+  padding-top: 2vh;
+  margin-top: 0;
 }
 
 .text-link {
@@ -53,4 +56,11 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.menu-btn {
+  position: fixed;
+  bottom: 0.1rem;
+  right: 0.1rem;
+  padding: 0.5rem !important;
 }

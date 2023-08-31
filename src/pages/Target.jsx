@@ -1,22 +1,28 @@
 import React, { useState, useEffect } from "react";
-
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
 import { Link } from "react-router-dom";
+
+import { 
+  Alert,
+  Grid, 
+  Typography, 
+  TextField } from "@mui/material";
+
 import TimeField from "react-simple-timefield";
-// import Button from "@mui/material/Button";
+// import CoordinateInput from 'react-coordinate-input'
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
-import { formatToDMS } from "../utils";
+import { latReg, longReg } from "../constants";
+
+import DoubleArrowIcon from '@mui/icons-material/DoubleArrow';
+
 
 function Target() {
+
   const [tot, setTOT] = useState(() => {
     const saved = localStorage.getItem("TOT");
     const initialValue = JSON.parse(saved);
-    return initialValue || "0";
+    return initialValue || "00:00:00";
   });
 
   const [targetPosition, setTargetPosition] = useState(() => {
@@ -32,7 +38,6 @@ function Target() {
         latCardinal: "N",
         long: 0,
         longCardinal: "E",
-        // distance: 0,
       }
     );
   });
@@ -50,18 +55,49 @@ function Target() {
 
   const handleTgtChange = (e) => {
     const { name, value } = e.target;
-    const input = value.substring(0, 6);
-    e.target.value = input;
+    const input = value.substring(0, 11);
 
-    setTargetPosition((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    if (name === "lat") {
+      const formattedLat = input.replace(latReg, `$1° $2' $3''`);
+      e.target.value = formattedLat;
+
+      // console.log("after format lat", formattedLat);
+      e.target.value = formattedLat;
+      setTargetPosition((prev) => ({
+        ...prev,
+        lat: formattedLat,
+      }));
+    } else if (name === "long") {
+      const formattedLong = input.replace(longReg, `$1° $2' $3''`);
+      e.target.value = formattedLong;
+
+      console.log("after format long", formattedLong);
+      e.target.value = formattedLong;
+      setTargetPosition((prev) => ({
+        ...prev,
+        long: formattedLong,
+      }));
+    } else {
+      e.target.value = input;
+
+      setTargetPosition((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   // useEffect(() => {
   //   console.log(targetPosition);
   // }, [targetPosition]);
+
+  // function insertSlash(val) {
+  //   const latReg = /^(?:[0-8]\d|90)(?:[0-5]\d)(?:[0-5]\d)/
+
+  //   return val.replace(/^([0-8]\d|90)([0-5]\d)([0-5]\d)/, `$1°$2'$3''`);
+  // }
+
+  // console.log(insertSlash('521918'));
 
   useEffect(() => {
     localStorage.setItem("TOT", JSON.stringify(tot));
@@ -77,37 +113,33 @@ function Target() {
     marginRight: "auto",
     maxWidth: 400,
     alignItems: "center",
-
-    // justifyContent: "space-between"
   };
 
   return (
     <div className="Content">
       <Grid
         container
-        //spacing={2}
+        // spacing={2}
         rowSpacing={2}
         columnSpacing={2}
         columns={16}
         sx={gridStyles}
-
-        // alignItems="center"
-
-        // container
-        // spacing={2}
-        // container
-        // justifyContent="space-between"
-        // spacing={2}
       >
         <Grid item xs={10}>
           <TextField
             fullWidth
-            inputProps={{ inputMode: 'numeric' }}
+            inputProps={{
+              inputMode: "numeric",
+            }}
+            onFocus={(event) => {
+              event.target.select();
+            }}
             label="Latitude"
             variant="outlined"
             name="lat"
+            // value={targetPosition.lat}
             onChange={handleTgtChange}
-            type="number"
+            // type="number"
             placeholder="DD°MM'SS''"
           />
         </Grid>
@@ -139,12 +171,17 @@ function Target() {
         <Grid item xs={10}>
           <TextField
             fullWidth
-            inputProps={{ inputMode: 'numeric' }}
+            inputProps={{
+              inputMode: "numeric",
+            }}
+            onFocus={(event) => {
+              event.target.select();
+            }}
             label="Longitude"
-            placeholder="DD°MM'SS''"
+            placeholder="DDD°MM'SS''"
             variant="outlined"
             name="long"
-            type="number"
+            // type="number"
             onChange={handleTgtChange}
           />
         </Grid>
@@ -177,46 +214,62 @@ function Target() {
             onChange={(event, value) => {
               // console.log(event, value);
               setTOT(value);
-            }} // {Function} required
+            }}
             input={
               <TextField
                 fullWidth
-                inputProps={{ inputMode: 'numeric' }}
-                value={tot} // {String}   required, format '00:00' or '00:00:00'
+                inputProps={{
+                  inputMode: "numeric",
+                }}
+                onFocus={(event) => {
+                  event.target.select();
+                }}
+                value={tot}
                 label="TOT"
                 variant="outlined"
                 placeholder="HH:MM:SS"
-                onFocus={event => {
-                  event.target.select();
-                }}
               />
             }
             colon=":"
             showSeconds
           />
+
+          {/* <CoordinateInput
+            value={targetPosition.lat}
+            onChange={(value, { unmaskedValue, dd, dms }) => {
+              console.log(value, unmaskedValue, dd, dms)
+            }}
+          /> */}
         </Grid>
         <Grid item xs={14}>
           {targetPosition.lat && targetPosition.long ? (
+            // {latitude && targetPosition.long ? (
             <code>
               <Typography gutterBottom>
-                <small><strong>Target location:</strong></small>
-                  <br />
-                  {formatToDMS(targetPosition.lat)} {targetPosition.latCardinal}{" "}
-                  {formatToDMS(targetPosition.long)}{" "}
-                  {targetPosition.longCardinal}
+                <>
+                  <strong>Target location:</strong>
+                </>
+                <br />
+                {targetPosition.lat} {targetPosition.latCardinal}{" "}
+                {targetPosition.long} {targetPosition.longCardinal}
               </Typography>
               {tot !== "" ? (
                 <Typography gutterBottom>
-                  <small>Desire<strong> TOT</strong> [UTC]:</small>
+                  <>
+                    Desire<strong> TOT</strong> [UTC]:
+                  </>
                   <br />
                   {tot}
                 </Typography>
               ) : null}
-                {/* Distance: {targetPosition.distance.toFixed(1)} NM <br />
-                ETT: 15 min 21 sek */}
+              <Typography mt={2}>
               <Link className="text-link" to="/execute">
-                <Button variant="outlined">Execute </Button>
+                <Alert variant="outlined" severity="success">
+                  Execute <DoubleArrowIcon style={{ fontSize: 10 }} /> <DoubleArrowIcon style={{ fontSize: 10 }} /> <DoubleArrowIcon style={{ fontSize: 10 }} /> be on time!
+                </Alert>
               </Link>
+            </Typography>
+              
             </code>
           ) : null}
         </Grid>

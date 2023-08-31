@@ -1,20 +1,41 @@
 import React, { useState, useEffect } from "react";
 import { usePosition } from "use-position";
-import { calculateDistance, toDMS, formatToDMS } from "../utils";
+import {
+  toDMS,
+  parseDMS,
+  formatHHMMSS,
+  calculateETA,
+  dateIsValid,
+  diffETAnTOT,
+  calculateNewGS,
+} from "../utils";
+import { toUTC } from "../constants";
+import { Alert, Typography } from "@mui/material";
 
-import Typography from "@mui/material/Typography";
+import SpeedIcon from "@mui/icons-material/Speed";
+import NavigationIcon from "@mui/icons-material/Navigation";
+
+import { Link } from "react-router-dom";
 
 const { Position, getDistance } = require("aviation-math");
 var convert = require("convert-units");
 
 function Execute() {
+
   const watch = true;
-  const { latitude, longitude, speed, timestamp, accuracy, heading, error } =
+  let { latitude, longitude, speed, timestamp, accuracy, heading, error } =
     usePosition(watch, {
       enableHighAccuracy: true,
       timeout: 60000,
       maximumAge: 0,
     });
+
+  //#TODO: switch to FALSE prior deploy !!!
+  const isTesting = false //true;
+  const speedTest = 160; //km/h
+  const hdgTest = 176; //degree
+  speed = isTesting && speedTest;
+  heading = isTesting && hdgTest;
 
   const [currPosition, setCurrPosition] = useState({
     lat: 0,
@@ -24,41 +45,58 @@ function Execute() {
   });
 
   const [tot, setTOT] = useState(() => {
+    // const tot = (() => {
     const saved = localStorage.getItem("TOT");
     const initialValue = JSON.parse(saved);
     return initialValue || "0";
   });
 
+  const [ete, setETE] = useState(0);
+  const [toLate, setToLate] = useState(false);
+  const [eta, setETA] = useState(0);
+  const [newGS, setNewGS] = useState(0);
+
   const [distance, setDistance] = useState(() => {
     const saved = localStorage.getItem("distance");
     const initialValue = JSON.parse(saved);
-    return initialValue || "0";
+    return initialValue || null;
   });
 
   const [targetPosition, setTargetPosition] = useState([]);
 
   useEffect(() => {
     const targetPosition = JSON.parse(localStorage.getItem("target"));
+
     if (targetPosition) {
       setTargetPosition(targetPosition);
     }
-    console.log(targetPosition.lat)
 
-    const dist = getDistance(
-      new Position(currPosition.lat, currPosition.long),
-      new Position(targetPosition.lat, targetPosition.long)
-      // new Position(55.755826, 37.6173)
-    );
+    if (targetPosition.lat !== 0 && targetPosition.long !== 0) {
+      // console.log(targetPosition);
+      // setDistance(
+      const dist = getDistance(
+        new Position(currPosition.lat, currPosition.long),
+        new Position(
+          parseDMS(targetPosition.lat, targetPosition.latCardinal),
+          parseDMS(targetPosition.long, targetPosition.longCardinal)
+        )
+        // );
+      );
 
-    setDistance(dist);
-    localStorage.setItem("distance", JSON.stringify(dist));
+      if (speed) {
+        setETE(dist / speed);
+        setNewGS(calculateNewGS(tot, dist));
+      } else {
+        setETE(null);
+      }
+      setETA(calculateETA(parseFloat(ete)));
+      setToLate(diffETAnTOT(eta, tot).toLate);
+      // console.log("GS:", speed, "ETE: ", ete, "ETA: ", eta, "late:", toLate);
 
-
-    // setTargetPosition((prev) => ({
-    //   ...prev,
-    //   distance: dist,
-    // }));
-  }, [currPosition]);
+      setDistance(dist);
+      localStorage.setItem("distance", JSON.stringify(dist));
+    }
+  }, [currPosition, ete]);
 
   useEffect(() => {
     setCurrPosition({
@@ -71,72 +109,122 @@ function Execute() {
 
   return (
     <div className="Content">
-      {/* <Typography> */}
-      {targetPosition.lat && targetPosition.long ? (
-        <code>
-      <Typography variant="h6" paragraph>
-            <strong>Current location:</strong>
-            </Typography >
-            {latitude ? (
-                <small>
-                        <Typography variant="subtitle1" paragraph>
+      <>
+        <Typography>
+          <strong>Current location:</strong>
+        </Typography>
 
-                  {toDMS(latitude, longitude).lati}{" "}
-                  {toDMS(longitude, longitude).long}
-                </Typography>
+        {latitude && (
+          <>
+            <Typography variant="subtitle1" paragraph>
+              {toDMS(latitude, longitude).lati}{" "}
+              {toDMS(longitude, longitude).long}
+            </Typography>
+            {/* <Typography variant="subtitle1" paragraph> */}
 
-                  {speed ? (
-                <Typography variant="subtitle2">
-                        GS {convert(speed).from("m/s").to("knot").toFixed()} {"kt "}
-                        </Typography>
-                        ) : <span>GS: 0kt </span>}
-{heading ? (
-                <span>
-                  {" "}
-                  HDG {heading.toFixed()}°<br />{" "}
-                </span>
-              ) : <span>HDG: TBN<br/></span>}
-              
-                </small>
-            ) : null}
-            <h5>
-                <strong>Target location:</strong>
-            </h5>
-              <small>
-                {formatToDMS(targetPosition.lat)} {targetPosition.latCardinal}{" "}
-                {formatToDMS(targetPosition.long)} {targetPosition.longCardinal}
-              </small>
-          <p>
-          Distance: {distance.toFixed(1)} NM <br />
-            <strong> TOT: {tot} [UTC]</strong><br />
-            ETA: 12:54:21 [UTC]<br />
-            ETE: 15 min 21 sek 
             {speed ? (
-                <span>{(distance/speed).toFixed(1)} h</span>
-            // ): <span> GS: 0</span>}
-            ): null}
+              <span
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                }}
+              >
+                <SpeedIcon style={{ fontSize: 20 }} />
+                {convert(speed).from("m/s").to("knot").toFixed()} kt
+                <NavigationIcon style={{ fontSize: 20 }} />
+                {heading.toFixed()}°
+              </span>
+            ) : isTesting ? (
+              <span>
+                <strong>GS: --- kt | HDG: ---°</strong>
+              </span>
+            ) : (
+              <Alert variant="outlined" severity="info">
+                Start moving
+              </Alert>
+            )}
+          </>
+        )}
 
-          </p>
-        </code>
-      ) : null}
+        {targetPosition.lat !== 0 && targetPosition.long !== 0 ? (
+          <>
+            <Typography mt={2}>
+              <strong>Target location:</strong>
+            </Typography>
 
+            <Typography variant="subtitle1" paragraph>
+              {targetPosition.lat} {targetPosition.latCardinal}{" "}
+              {targetPosition.long} {targetPosition.longCardinal}
+            </Typography>
+
+            {distance !== null && (
+              <span>
+                Distance: {distance.toFixed(1)} NM
+                <br />
+              </span>
+            )}
+            {ete ? (
+              <span>
+                ETE: {formatHHMMSS(ete)}
+                <br />
+              </span>
+            ) : null}
+            <br />
+
+            <strong> TOT: {tot} [UTC]</strong>
+            <br />
+            {speed > 0 ? (
+              <Typography
+                variant="body1"
+                style={{ color: toLate ? "red" : "green" }}
+              >
+                ETA: {dateIsValid(eta) && toUTC.format(eta)} [UTC]
+              </Typography>
+            ) : null}
+            <br />
+          </>
+        ) : (
+          <>
+            <Typography mt={2}>
+              <Link className="text-link" to="/target">
+                <Alert variant="outlined" severity="error">
+                  Set target location and TOT
+                </Alert>
+              </Link>
+            </Typography>
+          </>
+        )}
+
+        {newGS ? (
+          <Alert
+            variant="outlined"
+            severity={diffETAnTOT(eta, tot).toLate ? "error" : "info"}
+          >
+            Speed: {newGS.toFixed()}{" kt - "}
+            {diffETAnTOT(eta, tot).toLate
+              ? "TGT missed!"
+              : <span>Slow down {(speed - newGS).toFixed()}
+                </span>} {" "}
+          </Alert>
+        ) : null}
+      </>
 
       {latitude ? (
-              <Typography variant="caption" display="block" gutterBottom>
+        <Typography variant="caption" display="block" mt={2} gutterBottom>
           <code>
-            <small>
-              
-              timestamp: {Intl.DateTimeFormat('pl-PL', {hour: '2-digit', minute: '2-digit', second: '2-digit'}).format(timestamp)} LMT
-              <br />
-              accuracy: {accuracy && `${Math.round(accuracy)} meters`}
-              <br />
-              {error ? <span>error: {error}</span> : null}
-            </small>
+            timestamp: {toUTC.format(timestamp)} UTC
+            <br />
+            accuracy: {accuracy && `${Math.round(accuracy)} meters`}
+            <br />
+            {error ? <span>error: {error}</span> : null}
           </code>
-              </Typography>
+        </Typography>
       ) : (
-        <span>standby, looking for fix</span>
-        )}
+        <Alert variant="outlined" severity="warning">
+          standby, looking for fix
+        </Alert>
+      )}
     </div>
   );
 }

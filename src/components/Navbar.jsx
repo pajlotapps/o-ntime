@@ -4,7 +4,7 @@ import {
   Grid,
   Tab,
   Tabs,
-  Button,
+  // Button,
   Toolbar,
   Typography,
   useTheme,
@@ -14,21 +14,20 @@ import { useState } from "react";
 import DrawerComponent from "./Drawer";
 import SyncIcon from "@mui/icons-material/Sync";
 import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 const Navbar = ({ links }) => {
   const theme = useTheme();
 
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
-
   const [value, setValue] = useState(0);
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  function handleReset() {
-    navigate("/");
-    localStorage.clear()
-  }
+  // function handleReset() {
+  //   navigate("/");
+  //   localStorage.clear()
+  // }
 
   return (
     <AppBar
@@ -37,15 +36,13 @@ const Navbar = ({ links }) => {
       <Toolbar>
         {isMatch ? (
           <>
-            <Typography>
+            {/* <Typography>
             <Button
                 variant="outlined"
-                onClick={handleReset}>
-              
-                {/* Reset  */}
+                onClick={handleReset}>              
                 <SyncIcon />
               </Button>
-            </Typography>
+            </Typography> */}
             <DrawerComponent links={links} />
           </>
         ) : (

@@ -1,4 +1,4 @@
-
+import { Copyright } from "../components";
 
 function Disclaimer() {
   return (
@@ -21,6 +21,7 @@ function Disclaimer() {
           </small>
         </p>
       </header>
+      <Copyright />
     </div>
   );
 }
